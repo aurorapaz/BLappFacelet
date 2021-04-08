@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_svprogresshud/flutter_svprogresshud.dart';
 import 'package:photo_view/photo_view.dart';
-import 'dart:async';
+import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class DetailPage extends StatefulWidget {
   final BluetoothDevice server;
@@ -37,7 +38,6 @@ class _DetailPageState extends State<DetailPage> {
   @override
   void initState() {
     super.initState();
-    _selectedFrameSize = '0';
     _getBTConnection();
     _timer = new RestartableTimer(Duration(seconds: 1), _drawImage);
     _timertakephoto = new RestartableTimer(Duration(seconds: 10), () {
@@ -92,7 +92,8 @@ class _DetailPageState extends State<DetailPage> {
     setState(() {});
 
     SVProgressHUD.showInfo();
-    // SVProgressHUD.dismissWithDelay(1000);
+    SVProgressHUD.dismiss();
+    //SVProgressHUD.dismissWithDelay(1000);
 
     contentLength = 0;
     chunks.clear();
@@ -126,6 +127,9 @@ class _DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.black,
+        // appBar: AppBar(
+        //   title: Text('fotos'),
+        // ),
         body: SafeArea(
           child: isConnected
               ? Column(

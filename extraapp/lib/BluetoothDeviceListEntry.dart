@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class BluetoothDeviceListEntry extends ListTile {
   BluetoothDeviceListEntry({
@@ -12,8 +13,14 @@ class BluetoothDeviceListEntry extends ListTile {
           onTap: onTap,
           onLongPress: onLongPress,
           enabled: enabled,
-          title: Text(device.name ?? "Unknown device"),
-          subtitle: Text(device.address.toString()),
+          title: Text(
+            "Conectado a...",
+            textAlign: TextAlign.center,
+          ),
+          subtitle: Text(
+            device.name ?? "No conocido",
+            textAlign: TextAlign.center,
+          ),
           // trailing: Row(
           //   mainAxisSize: MainAxisSize.min,
           //   children: <Widget>[
