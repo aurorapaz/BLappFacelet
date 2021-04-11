@@ -25,19 +25,6 @@ async def savePhoto(request):
         cv2.imshow("caca",img)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
-        # im2 = Image.new('RGB', (128,128))
-        # im2.putdata(photo['photo'])
-        # # Save the image.
-        # image_name = r"fotosESP-" + str(i) + r".jpeg"
-        # print('2')
-        # im2.save(image_name, "JPEG") # Stored in images folder in the pwd, if not present then create one
-        # print('3')
-        # i+=1
-        # print('4')
-        # im2.show()
-        print('5')
-        #im = Image.open(StringIO(photo['photo']))
-        #im.save(r'C:\Users\auror\OneDrive\Escritorio\fotosESP')
         return web.Response(text=json.dumps({'status': 'success'}), status=200)
     except Exception as e:
         print (e)

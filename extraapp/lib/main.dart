@@ -3,12 +3,9 @@
 // found in the LICENSE file.
 import 'dart:convert';
 import 'dart:typed_data';
-import 'dart:async';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:flutter_svprogresshud/flutter_svprogresshud.dart';
-import 'BluetoothDeviceListEntry.dart';
 import 'sender.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -42,7 +39,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   bool isDisconnecting = false;
   bool connected = false;
   bool attached = false;
-  String _selectedFrameSize = "0";
+  String _selectedFrameSize = "2";
 
   List<List<int>> chunks = <List<int>>[];
   int contentLength = 0;
@@ -100,12 +97,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             connection = _connection;
             isConnecting = false;
             isDisconnecting = false;
+            this.connected = true;
             setState(() {});
             connection.input.listen(_onDataReceived).onDone(() {
               if (isDisconnecting) {
                 print('Disconnecting locally');
+                this.connected = false;
               } else {
                 print('Disconnecting remotely');
+                this.connected = false;
               }
               if (this.mounted) {
                 setState(() {});
@@ -114,9 +114,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
           }).catchError((error) {});
           _timertakephoto = new RestartableTimer(Duration(seconds: 10), () {
             _sendMessage(_selectedFrameSize);
-            setState(() {});
           });
-          _timersavephoto = new RestartableTimer(Duration(seconds: 8), () {
+          _timersavephoto = new RestartableTimer(Duration(seconds: 5), () {
             _saveImage();
           });
         }
@@ -128,10 +127,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     if (data != null && data.length > 0) {
       chunks.add(data);
       contentLength += data.length;
+      print(contentLength);
     }
     //print("Data Length: ${data.length}, chunks: ${chunks.length}");
-    print(data);
-    _timertakephoto.reset();
+    _timertakephoto.cancel();
+    _timertakephoto = new RestartableTimer(Duration(seconds: 10), () {
+      _sendMessage(_selectedFrameSize);
+    });
     _timersavephoto.reset();
   }
 
@@ -149,7 +151,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   _saveImage() {
-    if (chunks.length == 0 || contentLength == 0) return;
+    print(contentLength);
+    if (chunks.length == 0 || contentLength < 25000) {
+      _timertakephoto.cancel();
+      _timertakephoto = new RestartableTimer(Duration(seconds: 2), () {
+        _sendMessage(_selectedFrameSize);
+      });
+      contentLength = 0;
+      chunks.clear();
+      return;
+    } else {
+      _timertakephoto.cancel();
+      _timertakephoto = new RestartableTimer(Duration(seconds: 10), () {
+        _sendMessage(_selectedFrameSize);
+      });
+    }
 
     _bytes = Uint8List(contentLength);
     int offset = 0;
@@ -157,7 +173,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _bytes.setRange(offset, offset + chunk.length, chunk);
       offset += chunk.length;
     }
-
     setState(() {});
 
     contentLength = 0;
@@ -193,6 +208,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         _getBTConnection();
       } else {
         devices.clear();
+        this.attached = false;
+        this.connected = false;
       }
       print("State isEnabled: ${state.isEnabled}");
       setState(() {});
@@ -252,6 +269,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 } else {
                   FlutterBluetoothSerial.instance.requestDisable();
                   this.connected = false;
+                  this.attached = false;
                 }
                 setState(() {});
               },
@@ -268,30 +286,29 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                   )
                 : ListTile(),
             this.connected && this.attached
-                ? Expanded(
-                    child: ListView(
-                      children: devices != null
-                          ? devices
-                              .map((_device) => BluetoothDeviceListEntry(
-                                    device: _device,
-                                    enabled: true,
-                                  ))
-                              .toList()
-                          : [],
+                ? Padding(
+                    padding: EdgeInsets.all(20.0),
+                    child: Text(
+                      'CONECTADO A ESP32-CAM',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black45),
                     ),
                   )
-                : Expanded(child: ListView()),
-            this.attached
-                ? Container(
-                    width: 160,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      image: new DecorationImage(
-                          fit: BoxFit.cover,
-                          image: MemoryImage(_bytes, scale: 1.0)),
-                    ),
-                  )
-                : Container(),
+                : Padding(padding: EdgeInsets.all(0), child: Text('')),
+            // this.attached
+            //     ? Container(
+            //         width: 160,
+            //         height: 120,
+            //         decoration: BoxDecoration(
+            //           image: new DecorationImage(
+            //               fit: BoxFit.cover,
+            //               image: MemoryImage(_bytes, scale: 1.0)),
+            //         ),
+            //       )
+            //     : Container(),
           ],
         ),
       ),

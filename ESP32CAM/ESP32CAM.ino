@@ -60,7 +60,7 @@ void initCamera(){
   config.pin_sscb_scl = SIOC_GPIO_NUM;
   config.pin_pwdn = PWDN_GPIO_NUM;
   config.pin_reset = RESET_GPIO_NUM;
-  config.xclk_freq_hz = 20000000;
+  config.xclk_freq_hz = 10000000;
   config.pixel_format = PIXFORMAT_JPEG;
   //init with high specs to pre-allocate larger buffers
   if(psramFound()){
@@ -83,7 +83,6 @@ void initCamera(){
 }
 
 void setCameraParam(int paramInt){
-  Serial.printf("Entering to setCameraParam with param= %i",paramInt);
   sensor_t *s = esp_camera_sensor_get();
   switch(paramInt){
     case 4:
@@ -107,32 +106,27 @@ void setCameraParam(int paramInt){
       s->set_framesize(s, FRAMESIZE_VGA);
     break;
   }
-Serial.printf("Set frame size succesfully ended");
   capture();
-  Serial.printf("Ended capture");
 }
 
 void capture(){
   camera_fb_t *fb = NULL;
   esp_err_t res = ESP_OK;
   fb = esp_camera_fb_get();
+  size_t size = fb->len;
+  Serial.printf("SIZE: %d\n", size);
   if(!fb){
-    Serial.printf("1");
     esp_camera_fb_return(fb);
     return;
   }
 
   if(fb->format != PIXFORMAT_JPEG){
-    Serial.printf("2");
     return;
   }
-
+  
   writeSerialBT(fb);
-  Serial.printf("3");
   esp_camera_fb_return(fb);
 }
 
-void loop() { 
-//  delay(5000000);
-//  setCameraParam(0);
+void loop() {
   }
