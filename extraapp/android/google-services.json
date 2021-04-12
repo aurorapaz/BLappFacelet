@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "151362094829",
+    "project_id": "facelet-40087",
+    "storage_bucket": "facelet-40087.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:151362094829:android:dd8b80a1eddc892a716ee4",
+        "android_client_info": {
+          "package_name": "com.faceletcontrol"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "151362094829-7cjbdr8vbivtipeoeiutqd92ohntbvu4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClsHWYG00jWcLlusXCNbUMMM-4D2b6rFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "151362094829-7cjbdr8vbivtipeoeiutqd92ohntbvu4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:151362094829:android:3af501bee88e83a3716ee4",
+        "android_client_info": {
+          "package_name": "extra_app.v1"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "151362094829-7cjbdr8vbivtipeoeiutqd92ohntbvu4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyClsHWYG00jWcLlusXCNbUMMM-4D2b6rFQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "151362094829-7cjbdr8vbivtipeoeiutqd92ohntbvu4.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

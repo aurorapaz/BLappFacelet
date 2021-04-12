@@ -6,20 +6,32 @@ import 'dart:typed_data';
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'package:provider/provider.dart';
 import 'sender.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
+import 'sing_in_page.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'authentication_service.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: HomePage(),
+      home: MultiProvider(providers: [
+        Provider<AuthenticationService>(
+          create: (_) => AuthenticationService(FirebaseAuth.instance),
+        ),
+        StreamProvider(
+          create: (context) =>
+              context.read<AuthenticationService>().authStateChanges,
+        )
+      ], child: AuthenticationWrapper()),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -47,16 +59,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   RestartableTimer _timertakephoto;
   RestartableTimer _timersavephoto;
+  RestartableTimer _timerConnection;
 
   BluetoothState _bluetoothState = BluetoothState.UNKNOWN;
-  TextEditingController _controller = TextEditingController();
 
   List<BluetoothDevice> devices;
   Sender _sender = new Sender();
   @override
   void initState() {
     super.initState();
+    chunks = <List<int>>[];
+    contentLength = 0;
+    _bytes = new Uint8List(0);
     WidgetsBinding.instance.addObserver(this);
+    _timerConnection = new RestartableTimer(Duration(seconds: 30), () {
+      print('Trying to conect...');
+      _getBTState();
+      _stateChangeListener();
+    });
     _getBTState();
     _stateChangeListener();
   }
@@ -70,7 +90,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       connection = null;
       this.connected = false;
       this.attached = false;
+      _timertakephoto.cancel();
+      _timersavephoto.cancel();
     }
+    chunks = <List<int>>[];
+    contentLength = 0;
+    _bytes = new Uint8List(0);
     super.dispose();
   }
 
@@ -90,7 +115,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       BluetoothDevice _device;
       for (final BluetoothDevice dev in devices.toList()) {
         if (dev.name == "ESP32CAM-CLASSIC-BT") {
-          this.attached = true;
           _device = dev;
 
           BluetoothConnection.toAddress(_device.address).then((_connection) {
@@ -98,26 +122,76 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             isConnecting = false;
             isDisconnecting = false;
             this.connected = true;
+            this.attached = true;
             setState(() {});
+
+            _timertakephoto = new RestartableTimer(Duration(seconds: 10), () {
+              _sendMessage(_selectedFrameSize);
+            });
+            _timersavephoto = new RestartableTimer(Duration(seconds: 5), () {
+              _saveImage();
+            });
+            _timerConnection.cancel();
+
             connection.input.listen(_onDataReceived).onDone(() {
               if (isDisconnecting) {
                 print('Disconnecting locally');
                 this.connected = false;
+                this.attached = false;
+                _timertakephoto.cancel();
+                _timersavephoto.cancel();
+                _timerConnection =
+                    new RestartableTimer(Duration(seconds: 30), () {
+                  print('Trying to conect...');
+                  _getBTState();
+                  _stateChangeListener();
+                });
+                chunks = <List<int>>[];
+                contentLength = 0;
+                _bytes = new Uint8List(0);
               } else {
                 print('Disconnecting remotely');
                 this.connected = false;
+                this.attached = false;
+                _timertakephoto.cancel();
+                _timersavephoto.cancel();
+                _timerConnection =
+                    new RestartableTimer(Duration(seconds: 30), () {
+                  print('Trying to conect...');
+                  _getBTState();
+                  _stateChangeListener();
+                });
+                chunks = <List<int>>[];
+                contentLength = 0;
+                _bytes = new Uint8List(0);
               }
               if (this.mounted) {
                 setState(() {});
               }
             });
-          }).catchError((error) {});
-          _timertakephoto = new RestartableTimer(Duration(seconds: 10), () {
-            _sendMessage(_selectedFrameSize);
+          }).catchError((error) {
+            this.attached = false;
+            _timerConnection.cancel();
+            _timerConnection = new RestartableTimer(Duration(seconds: 30), () {
+              print('Trying to conect...');
+              _getBTState();
+              _stateChangeListener();
+            });
+            chunks = <List<int>>[];
+            contentLength = 0;
+            _bytes = new Uint8List(0);
           });
-          _timersavephoto = new RestartableTimer(Duration(seconds: 5), () {
-            _saveImage();
+        } else {
+          _timerConnection.cancel();
+          this.attached = false;
+          _timerConnection = new RestartableTimer(Duration(seconds: 30), () {
+            print('Trying to conect...');
+            _getBTState();
+            _stateChangeListener();
           });
+          chunks = <List<int>>[];
+          contentLength = 0;
+          _bytes = new Uint8List(0);
         }
       }
     }
@@ -144,6 +218,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       try {
         connection.output.add(utf8.encode(text));
         await connection.output.allSent;
+        _timersavephoto.reset();
       } catch (e) {
         setState(() {});
       }
@@ -152,7 +227,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   _saveImage() {
     print(contentLength);
-    if (chunks.length == 0 || contentLength < 25000) {
+    if (chunks.length == 0 || contentLength < 50000) {
       _timertakephoto.cancel();
       _timertakephoto = new RestartableTimer(Duration(seconds: 2), () {
         _sendMessage(_selectedFrameSize);
@@ -193,6 +268,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       } else {
         this.connected = false;
         this.attached = false;
+        _timertakephoto.cancel();
+        _timersavephoto.cancel();
       }
       setState(() {});
     });
@@ -210,6 +287,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         devices.clear();
         this.attached = false;
         this.connected = false;
+        _timertakephoto.cancel();
+        _timersavephoto.cancel();
       }
       print("State isEnabled: ${state.isEnabled}");
       setState(() {});
@@ -284,7 +363,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                       },
                     ),
                   )
-                : ListTile(),
+                : Padding(padding: EdgeInsets.all(0), child: Text('')),
             this.connected && this.attached
                 ? Padding(
                     padding: EdgeInsets.all(20.0),
@@ -298,6 +377,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     ),
                   )
                 : Padding(padding: EdgeInsets.all(0), child: Text('')),
+            ElevatedButton(
+                child: Text("Pechar sesión"),
+                onPressed: () {
+                  FlutterBluetoothSerial.instance.requestDisable();
+                  this.connected = false;
+                  this.attached = false;
+                  setState(() {});
+                  dispose();
+                  context.read<AuthenticationService>().signOut();
+                }),
             // this.attached
             //     ? Container(
             //         width: 160,
@@ -338,5 +427,64 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         ],
       ),
     );
+  }
+}
+
+class AuthenticationWrapper extends StatelessWidget {
+  const AuthenticationWrapper({
+    Key key,
+  }) : super(key: key);
+  @override
+  Widget build(BuildContext context) {
+    final firebaseUser = context.watch<User>();
+    if (firebaseUser != null) {
+      return HomePage();
+    } else {
+      return Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(70.0), // here the desired height
+          child: AppBar(
+            backgroundColor: Colors.indigoAccent[700],
+            title: Center(
+              child: Padding(
+                padding: EdgeInsets.only(top: 10),
+                child: Image.asset(
+                  'assets/images/top.png',
+                  height: 80,
+                  width: 120,
+                  fit: BoxFit.fitWidth,
+                ),
+              ),
+            ),
+          ),
+        ),
+        body: SignInPage(),
+        bottomNavigationBar: Stack(
+          children: [
+            new Container(
+              height: 40.0,
+              color: Colors.indigoAccent[700],
+            ),
+            Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment
+                      .center, //Center Row contents horizontally,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.end, //Center Row contents vertically,
+                  children: [
+                    Text(
+                      '© Facelet',
+                      style: TextStyle(
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.normal,
+                          color: Colors.white),
+                    ),
+                  ]),
+            ),
+          ],
+        ),
+      );
+    }
   }
 }

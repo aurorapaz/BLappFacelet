@@ -42,6 +42,9 @@ dependencies:
   rxdart: ^0.23.1
   http: ^0.12.0+3
   socket_io_client: ^0.9.7+2
+  firebase_core: "0.7.0"
+  firebase_auth: "^0.20.1"
+  provider: ^4.3.2+1
 
 dev_dependencies:
   flutter_test:

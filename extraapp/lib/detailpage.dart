@@ -2,13 +2,10 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:async/async.dart';
-import 'package:dropdown_formfield/dropdown_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_svprogresshud/flutter_svprogresshud.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 class DetailPage extends StatefulWidget {
   final BluetoothDevice server;

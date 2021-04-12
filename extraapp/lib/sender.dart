@@ -3,15 +3,10 @@ import 'dart:convert' as convert;
 import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart';
-import 'dart:typed_data';
 import 'dart:async';
-import 'package:async/async.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class Sender {
-  IO.Socket socket = IO.io('http://192.168.0.14:8080', <String, dynamic>{
+  IO.Socket socket = IO.io('http://192.168.1.139:8080', <String, dynamic>{
     'transports': ['websocket']
   });
   String initialCount =
@@ -30,7 +25,7 @@ class Sender {
   Stream<String> get counterObservable => _subjectCounter.stream;
 
   void httpRequest() async {
-    var url = 'http://192.168.0.14:8080/';
+    var url = 'http://192.168.1.139:8080/';
     // Await the http get response, then decode the json-formatted response.
     var response = await http.get(url);
     if (response.statusCode == 200) {
@@ -43,8 +38,7 @@ class Sender {
   }
 
   void httpPostRequest(Uint8List _bytes) async {
-    var url = 'http://192.168.0.14:8080/save';
-    String photoS = new String.fromCharCodes(_bytes);
+    var url = 'http://192.168.1.139:8080/save';
 
     Map data = {"name": "Aurora", "photo": _bytes};
     var body = convert.json.encode(data);
