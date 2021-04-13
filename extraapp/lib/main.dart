@@ -90,8 +90,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       connection = null;
       this.connected = false;
       this.attached = false;
-      _timertakephoto.cancel();
-      _timersavephoto.cancel();
+      if(_timertakephoto!=null)_timertakephoto.cancel();
+      if(_timersavephoto!=null)_timersavephoto.cancel();
     }
     chunks = <List<int>>[];
     contentLength = 0;
@@ -131,15 +131,15 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             _timersavephoto = new RestartableTimer(Duration(seconds: 5), () {
               _saveImage();
             });
-            _timerConnection.cancel();
+            if(_timerConnection!=null)_timerConnection.cancel();
 
             connection.input.listen(_onDataReceived).onDone(() {
               if (isDisconnecting) {
                 print('Disconnecting locally');
                 this.connected = false;
                 this.attached = false;
-                _timertakephoto.cancel();
-                _timersavephoto.cancel();
+                if(_timertakephoto!=null)_timertakephoto.cancel();
+                if(_timersavephoto!=null)_timersavephoto.cancel();
                 _timerConnection =
                     new RestartableTimer(Duration(seconds: 30), () {
                   print('Trying to conect...');
@@ -153,8 +153,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 print('Disconnecting remotely');
                 this.connected = false;
                 this.attached = false;
-                _timertakephoto.cancel();
-                _timersavephoto.cancel();
+                if(_timertakephoto!=null)_timertakephoto.cancel();
+                if(_timersavephoto!=null)_timersavephoto.cancel();
                 _timerConnection =
                     new RestartableTimer(Duration(seconds: 30), () {
                   print('Trying to conect...');
@@ -171,7 +171,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             });
           }).catchError((error) {
             this.attached = false;
-            _timerConnection.cancel();
+            if(_timerConnection!=null)_timerConnection.cancel();
             _timerConnection = new RestartableTimer(Duration(seconds: 30), () {
               print('Trying to conect...');
               _getBTState();
@@ -182,7 +182,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             _bytes = new Uint8List(0);
           });
         } else {
-          _timerConnection.cancel();
+         if(_timerConnection!=null) _timerConnection.cancel();
           this.attached = false;
           _timerConnection = new RestartableTimer(Duration(seconds: 30), () {
             print('Trying to conect...');
@@ -204,7 +204,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       print(contentLength);
     }
     //print("Data Length: ${data.length}, chunks: ${chunks.length}");
-    _timertakephoto.cancel();
+    if(_timertakephoto!=null)_timertakephoto.cancel();
     _timertakephoto = new RestartableTimer(Duration(seconds: 10), () {
       _sendMessage(_selectedFrameSize);
     });
@@ -228,7 +228,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   _saveImage() {
     print(contentLength);
     if (chunks.length == 0 || contentLength < 50000) {
-      _timertakephoto.cancel();
+      if(_timertakephoto!=null)_timertakephoto.cancel();
       _timertakephoto = new RestartableTimer(Duration(seconds: 2), () {
         _sendMessage(_selectedFrameSize);
       });
@@ -236,7 +236,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       chunks.clear();
       return;
     } else {
-      _timertakephoto.cancel();
+      if(_timertakephoto!=null)_timertakephoto.cancel();
       _timertakephoto = new RestartableTimer(Duration(seconds: 10), () {
         _sendMessage(_selectedFrameSize);
       });
@@ -268,8 +268,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       } else {
         this.connected = false;
         this.attached = false;
-        _timertakephoto.cancel();
-        _timersavephoto.cancel();
+        if(_timertakephoto!=null)_timertakephoto.cancel();
+        if(_timersavephoto!=null)_timersavephoto.cancel();
       }
       setState(() {});
     });
@@ -287,8 +287,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
         devices.clear();
         this.attached = false;
         this.connected = false;
-        _timertakephoto.cancel();
-        _timersavephoto.cancel();
+        if(_timertakephoto!=null)_timertakephoto.cancel();
+        if(_timersavephoto!=null)_timersavephoto.cancel();
       }
       print("State isEnabled: ${state.isEnabled}");
       setState(() {});

@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:typed_data';
 import 'dart:async';
+import 'globals.dart' as globals;
 
 class Sender {
   IO.Socket socket = IO.io('http://192.168.1.139:8080', <String, dynamic>{
@@ -40,7 +41,7 @@ class Sender {
   void httpPostRequest(Uint8List _bytes) async {
     var url = 'http://192.168.1.139:8080/save';
 
-    Map data = {"name": "Aurora", "photo": _bytes};
+    Map data = {"name": globals.email, "photo": _bytes};
     var body = convert.json.encode(data);
     // just like JS
     // Await the http get response, then decode the json-formatted response.

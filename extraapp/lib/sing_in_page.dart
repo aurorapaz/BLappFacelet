@@ -1,6 +1,7 @@
 import 'authentication_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'globals.dart' as globals;
 
 class SignInPage extends StatefulWidget {
   SignInPageState createState() => SignInPageState();
@@ -55,7 +56,7 @@ class SignInPageState extends State<SignInPage> {
                 autocorrect: false,
                 decoration: InputDecoration(
                     labelText: "Contrasinal",
-                    errorText: _validate ? 'Non pode estar valeiro' : null,
+                    errorText: _validate ? 'Non pode estar baleiro' : null,
                     border: new OutlineInputBorder(
                       borderRadius: const BorderRadius.all(
                         const Radius.circular(10.0),
@@ -85,6 +86,7 @@ class SignInPageState extends State<SignInPage> {
                       : _validate = false;
                 });
                 if (_validate != true) {
+                  globals.email = emailController.text.trim();
                   Future<String> value =
                       context.read<AuthenticationService>().signIn(
                             email: emailController.text.trim(),
