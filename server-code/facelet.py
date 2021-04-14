@@ -23,8 +23,7 @@ def detectFaces(data):
     return faces
 
 
-def verifyFace(imgPath):
-    img = cv2.imread(imgPath)
+def verifyFace(img):
     faces = detectFaces(img)
     if (len(faces)==0):
         return False
@@ -47,12 +46,8 @@ def getFaces(img, file):
         names.append(name)
     return names
 
-
-
-
-def recognize(img, path):
+def recognize(image, path):
     if(verifyFace(img)):
-        image = cv2.imread(img)
         names = getFaces(image, path)
         return names
     else:
