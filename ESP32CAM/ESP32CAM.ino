@@ -84,6 +84,9 @@ void initCamera(){
 
 void setCameraParam(int paramInt){
   sensor_t *s = esp_camera_sensor_get();
+  s->set_brightness(s, 1);     // -2 to 2
+  s->set_contrast(s, 0);       // -2 to 2
+  s->set_saturation(s, 0);     // -2 to 2
   switch(paramInt){
     case 4:
       s->set_framesize(s, FRAMESIZE_UXGA);
