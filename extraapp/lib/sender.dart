@@ -40,7 +40,7 @@ class Sender {
 
   void httpPostRequest(Uint8List _bytes) async {
     var url = 'http://192.168.1.139:8080/save';
-
+  print(globals.email);
     Map data = {"name": globals.email, "photo": _bytes};
     var body = convert.json.encode(data);
     // just like JS

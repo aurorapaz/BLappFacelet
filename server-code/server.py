@@ -40,7 +40,7 @@ def getFaces(img, file):
     faces = detectFaces(img)
     H,W,_ = img.shape
     for face in faces:
-        x1=y1=w1=h1=100
+        x1=y1=w1=h1=500
         x,y,w,h = face['box']
         if (x<x1): x1=x
         if (y<y1): y1=y
@@ -52,7 +52,7 @@ def getFaces(img, file):
     return names
 
 def recognize(image, path):
-    if(verifyFace(img)):
+    if(verifyFace(image)):
         names = getFaces(image, path)
         return names
     else:
@@ -75,11 +75,11 @@ async def savePhoto(request):
         print(name['name'])
         npa= np.fromstring(bytes(photo['photo']),np.uint8)
         img = cv2.imdecode(npa,cv2.IMREAD_COLOR)
-        nameRecog=recognize(img,'C:\Users\auror\OneDrive\Escritorio\'+name['name']+'\recon')
+        nameRecog=recognize(img,'C:/Users/auror/OneDrive/Escritorio/'+name['name']+'/recon')
         print(nameRecog)
-        # cv2.imshow("caca",img)
-        # cv2.waitKey(0)
-        # cv2.destroyAllWindows()
+        cv2.imshow("caca",img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
         return web.Response(text=json.dumps({'status': 'success'}), status=200)
     except Exception as e:
         print (e)

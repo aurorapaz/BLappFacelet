@@ -309,19 +309,54 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(70.0), // here the desired height
+        preferredSize: Size.fromHeight(60.0), // here the desired height
         child: AppBar(
           backgroundColor: Colors.indigoAccent[700],
-          title: Center(
-            child: Padding(
-              padding: EdgeInsets.only(top: 10),
-              child: Image.asset(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:<Widget>[
+              Padding(
+                padding: EdgeInsets.only(left:10),
+              child:Image.asset(
                 'assets/images/top.png',
                 height: 80,
                 width: 120,
                 fit: BoxFit.fitWidth,
               ),
-            ),
+              ),
+                Padding(
+                padding: EdgeInsets.only(right:5),
+                  child: SizedBox.fromSize(
+          size: Size(40, 40), // button width and height
+
+          child: ClipOval(
+            child: Material(
+              color: Colors.orange, // button color
+              child: InkWell(
+                splashColor: Colors.indigoAccent[700], // splash color
+                onTap: () {
+                  FlutterBluetoothSerial.instance.requestDisable();
+                  this.connected = false;
+                  this.attached = false;
+                  setState(() {});
+                  dispose();
+                  context.read<AuthenticationService>().signOut();
+                }, // button pressed
+                child: Center(
+                  child:
+                    Image.asset(
+                      'assets/images/logout.png',
+                      height: 25,
+                      width: 25,
+                      fit: BoxFit.fitWidth,
+                    ),
+                ),
+              ),
+          ),
+      ),
+          ),
+          ),
+        ],
           ),
         ),
       ),
@@ -341,6 +376,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
             ),
             SwitchListTile(
               title: Text('Activa Bluetooth'),
+              activeColor: Colors.indigoAccent[700],
               value: _bluetoothState.isEnabled,
               onChanged: (bool value) {
                 if (value) {
@@ -358,6 +394,9 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                 ? ListTile(
                     title: Text("Conectate !"),
                     trailing: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Colors.indigoAccent[700],
+                      ),
                       child: Text("Axustes"),
                       onPressed: () {
                         FlutterBluetoothSerial.instance.openSettings();
@@ -378,27 +417,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
                     ),
                   )
                 : Padding(padding: EdgeInsets.all(0), child: Text('')),
-            ElevatedButton(
-                child: Text("Pechar sesión"),
-                onPressed: () {
-                  FlutterBluetoothSerial.instance.requestDisable();
-                  this.connected = false;
-                  this.attached = false;
-                  setState(() {});
-                  dispose();
-                  context.read<AuthenticationService>().signOut();
-                }),
-            // this.attached
-            //     ? Container(
-            //         width: 160,
-            //         height: 120,
-            //         decoration: BoxDecoration(
-            //           image: new DecorationImage(
-            //               fit: BoxFit.cover,
-            //               image: MemoryImage(_bytes, scale: 1.0)),
-            //         ),
-            //       )
-            //     : Container(),
+
           ],
         ),
       ),
@@ -438,7 +457,7 @@ class AuthenticationWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final firebaseUser = context.watch<User>();
-    if (firebaseUser != null) {
+    if (globals.authed) {
       return HomePage();
     } else {
       return Scaffold(

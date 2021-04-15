@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'globals.dart' as globals;
 
 class AuthenticationService {
   final FirebaseAuth _firebaseAuth;
@@ -13,6 +14,7 @@ class AuthenticationService {
     return;
   }
 
+
   /// Changed to idTokenChanges as it updates depending on more cases.
   Stream<User> get authStateChanges => _firebaseAuth.idTokenChanges();
 
@@ -20,6 +22,7 @@ class AuthenticationService {
   /// Navigator.of(context).pushNamedAndRemoveUntil('/', (Route<dynamic> route) => false);
   /// after you called this method if you want to pop all routes.
   Future<void> signOut() async {
+    globals.authed=false;
     await _firebaseAuth.signOut();
   }
 

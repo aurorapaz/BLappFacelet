@@ -37,7 +37,7 @@ class SignInPageState extends State<SignInPage> {
                   labelText: "Email",
                   border: new OutlineInputBorder(
                     borderRadius: const BorderRadius.all(
-                      const Radius.circular(10.0),
+                      const Radius.circular(15.0),
                     ),
                   ),
                   filled: true,
@@ -59,7 +59,7 @@ class SignInPageState extends State<SignInPage> {
                     errorText: _validate ? 'Non pode estar baleiro' : null,
                     border: new OutlineInputBorder(
                       borderRadius: const BorderRadius.all(
-                        const Radius.circular(10.0),
+                        const Radius.circular(15.0),
                       ),
                     ),
                     filled: true,
@@ -79,6 +79,9 @@ class SignInPageState extends State<SignInPage> {
               ),
             ),
             ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                primary: Colors.indigoAccent[700],
+              ),
               onPressed: () {
                 setState(() {
                   passwordController.text.isEmpty
@@ -92,13 +95,17 @@ class SignInPageState extends State<SignInPage> {
                             email: emailController.text.trim(),
                             password: passwordController.text.trim(),
                           );
-                  value.then((value) => setState(() {
-                        if (value != "Signed in") {
-                          setState(() {
-                            logError = true;
-                          });
-                        }
-                      }));
+                  value.then((value) =>
+                      setState(() {
+                  if(value=="Signed in"){
+                        globals.authed=true;
+                  }else {
+                    setState(() {
+                      logError = true;
+                    });
+                  }
+                  })
+                  );
                 }
               },
               child: Text("Iniciar sesión"),
