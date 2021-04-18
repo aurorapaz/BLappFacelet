@@ -17,4 +17,4 @@ firebase=pyrebase.initialize_app(firebaseConfig)
 #define storage
 storage=firebase.storage()
 
-storage.child('gs://facelet-40087.appspot.com/aurorapazperez@gmail.com/contactos/uid1/enfado.jpg').download("enfado.jpg")
+storage.child('aurorapazperez@gmail.com/contactos/uid1/triste.jpg').download("./aurorapazperez@gmail.com/contactos/uid1/triste.jpg")

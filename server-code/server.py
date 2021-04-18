@@ -7,6 +7,10 @@ import cv2
 import os
 from deepface import DeepFace
 from mtcnn.mtcnn import MTCNN
+import firebase_admin
+from firebase_admin import credentials
+from firebase_admin import firestore
+import datetime
 
 def getName(imgPath, dbPath):
     distance = 100
@@ -65,7 +69,7 @@ async def apitest(request):
     result ={"status":"200"}
     return web.Response(text=json.dumps(result), status=200)
 
-async def savePhoto(request):
+async def checkPhoto(request):
     global i
     try:
         j = await request.json()
@@ -73,13 +77,33 @@ async def savePhoto(request):
         name = dicts[0]
         photo = dicts[1]
         print(name['name'])
+        email=name['name']
         npa= np.fromstring(bytes(photo['photo']),np.uint8)
         img = cv2.imdecode(npa,cv2.IMREAD_COLOR)
-        nameRecog=recognize(img,'C:/Users/auror/app-extra/server-code/'+name['name']+'/contactos')
-        print(nameRecog)
-        cv2.imshow("caca",img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        contactoReconocido=recognize(img,'C:/Users/auror/app-extra/server-code/'+name['name']+'/contactos')
+        print(contactoReconocido)
+        now = datetime.datetime.now()
+        horaReconocimiento=now.strftime('%d/%m/20%y %H:%M')
+
+        #Set up
+        cred = credentials.Certificate("serviceAccountKey.json")
+        firebase_admin.initialize_app(cred)
+
+        db=firestore.client()
+
+        #Buscar el contacto reconocido
+        pacientes = db.collection('pacientes').get()
+        for paciente in pacientes:
+            try:
+                if email in paciente.get('email'):
+                    for contacto in db.collection('pacientes',paciente.id,'contactos').get():
+                        if contacto.id==contactoReconocido:
+                            db.collection('pacientes',paciente.id,'contactos').document(contacto.id).update({u'interacciones': firestore.ArrayUnion([horaReconocimiento])})
+            except:
+                print()
+        # cv2.imshow("foto",img)
+        # cv2.waitKey(0)
+        # cv2.destroyAllWindows()
         return web.Response(text=json.dumps({'status': 'success'}), status=200)
     except Exception as e:
         print (e)
@@ -95,6 +119,6 @@ async def show(request):
         web.Response(text=json.dumps(response_obj), status=500)
 app = web.Application()
 app.router.add_get('/',apitest)
-app.router.add_post('/save',savePhoto)
+app.router.add_post('/save',checkPhoto)
 if __name__ == '__main__':
     web.run_app(app)

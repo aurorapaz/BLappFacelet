@@ -1,11 +1,14 @@
 import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
+import datetime
 
 #Datos estaticos
 email="aurorapazperez@gmail.com"
 contactoReconocido="uid1"
-horaReconocimiento="18/04/2021 11:00"
+now = datetime.datetime.now()
+horaReconocimiento=now.strftime('%d/%m/20%y %H:%M')
+
 
 #Set up
 cred = credentials.Certificate("serviceAccountKey.json")
