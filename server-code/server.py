@@ -75,7 +75,7 @@ async def savePhoto(request):
         print(name['name'])
         npa= np.fromstring(bytes(photo['photo']),np.uint8)
         img = cv2.imdecode(npa,cv2.IMREAD_COLOR)
-        nameRecog=recognize(img,'C:/Users/auror/app-extra/server-code/'+name['name']+'/recon')
+        nameRecog=recognize(img,'C:/Users/auror/app-extra/server-code/'+name['name']+'/contactos')
         print(nameRecog)
         cv2.imshow("caca",img)
         cv2.waitKey(0)
