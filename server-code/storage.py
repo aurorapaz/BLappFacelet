@@ -3,6 +3,7 @@ import pyrebase
 
 firebaseConfig = {
     "apiKey": "AIzaSyCNogZeG46KnY95_0QL1oiBQDUSv0hPNcs",
+    "databaseURL":"gs://facelet-40087.appspot.com",
     "authDomain": "facelet-40087.firebaseapp.com",
     "projectId": "facelet-40087",
     "storageBucket": "facelet-40087.appspot.com",
