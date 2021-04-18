@@ -3,13 +3,13 @@ import pyrebase
 
 firebaseConfig = {
     "apiKey": "AIzaSyCNogZeG46KnY95_0QL1oiBQDUSv0hPNcs",
-    "databaseURL":"gs://facelet-40087.appspot.com",
     "authDomain": "facelet-40087.firebaseapp.com",
+    "databaseURL": "https://facelet-40087-default-rtdb.europe-west1.firebasedatabase.app",
     "projectId": "facelet-40087",
     "storageBucket": "facelet-40087.appspot.com",
     "messagingSenderId": "151362094829",
-    "appId": "1:151362094829:web:e1b1f4072525c9a0716ee4",
-    "measurementId": "G-50RDMM4Q3V"
+    "appId": "1:151362094829:web:627980cb93250b70716ee4",
+    "measurementId": "G-XKW0ESME6S"
   }
 
 firebase=pyrebase.initialize_app(firebaseConfig)
