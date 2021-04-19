@@ -150,13 +150,13 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
 
     print(json.dumps(pacientesJSON))
 
-def hilo():
-    global pacientes_ref
-    pacientes_watch = pacientes_ref.on_snapshot(on_snapshot_pacientes)
+# def hilo():
+#     global pacientes_ref
+#     pacientes_watch = pacientes_ref.on_snapshot(on_snapshot_pacientes)
 
-    while True:
-        time.sleep(1)
-        print('procesando....')
+#     while True:
+#         time.sleep(1)
+#         print('procesando....')
 
 cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
@@ -164,13 +164,17 @@ firebase_admin.initialize_app(cred)
 db=firestore.client()
 
 pacientes_ref = db.collection(u'storage')
-
-hiloWatch = threading.Thread(target=hilo)
-hiloWatch.setDaemon(True)
-hiloWatch.start()
+pacientes_watch = pacientes_ref.on_snapshot(on_snapshot_pacientes)
 
 while True:
-    time.sleep(5)
-    print('hilo principal...')
+    time.sleep(1)
+    print('procesando....')
+# hiloWatch = threading.Thread(target=hilo)
+# hiloWatch.setDaemon(True)
+# hiloWatch.start()
+
+# while True:
+#     time.sleep(5)
+#     print('hilo principal...')
 
 # Terminate watch --> pacientes_watch.unsubscribe()
