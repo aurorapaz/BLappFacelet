@@ -57,6 +57,7 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                 print ("Successfully created the directory %s " % email)
         try:
             contacts=str(ch.document.to_dict()).split(',')
+            print(ch.document.to_dict())
             i=0
             for contact in contacts:
                 print(contact.split('\'')[1])
@@ -66,6 +67,7 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                         #existe el contacto?
                         print(pacientesJSON[email][contactoID])
                         pacientesJSON[email][contactoID]="true"
+                        newPacienteString=newPacienteString+'{\"'+contactoID+'\":"true"'
                     except:
                         print('no existe contacto= '+contactoID)
                         #AÑADIR A JSON
@@ -73,7 +75,7 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                         #CREAR DIRECTORIO DE UN CONTACTO
                         try:
                             os.mkdir(email+'/contactos/'+contactoID)
-                        except:
+                        except OSError:
                             print ("Creation of the directory %s failed" % email+'/contactos/'+contactoID)
                         else:
                             print ("Successfully created the directory %s " % email+'/contactos/'+contactoID)
@@ -82,12 +84,13 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                             storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
                         except:
                             print('no hay foto')
-                        i=i+1
+                    i=i+1
                 else:
                     try:
                         #existe el contacto?
                         print(pacientesJSON[email][contactoID])
                         pacientesJSON[email][contactoID]="true"
+                        newPacienteString=newPacienteString+',\"'+contactoID+'\":"true"'
                     except:
                         print('no existe contacto= '+contactoID)
                         #AÑADIR A JSON
@@ -96,7 +99,7 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                         #CREAR DIRECTORIO DE UN CONTACTO
                         try:
                             os.mkdir(email+'/contactos/'+contactoID)
-                        except:
+                        except OSError:
                             print ("Creation of the directory %s failed" % email+'/contactos/'+contactoID)
                         else:
                             print ("Successfully created the directory %s " % email+'/contactos/'+contactoID)
@@ -105,57 +108,49 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                             storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
                         except:
                             print('no hay foto')
+            if not creacion:
+                for contactoSearchFalse in pacientesJSON[email].keys():
+                    print(contactoSearchFalse)
+                    if pacientesJSON[email][contactoSearchFalse]=="false":
+                        #se elimino de Storage
+                        #ELIMINAR CARPETA
+                        try:
+                            for filename in os.listdir(email+'/contactos/'+contactoSearchFalse):
+                                print(filename)
+                                file_path = os.path.join(email+'/contactos/'+contactoSearchFalse, filename)
+                                try:
+                                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                                        os.unlink(file_path)
+                                    elif os.path.isdir(file_path):
+                                        shutil.rmtree(file_path)
+                                except Exception as e:
+                                    print('Failed to delete %s. Reason: %s' % (file_path, e))
+                            os.rmdir(email+'/contactos/'+contactoSearchFalse)
+                        except OSError:
+                            print ("Deletion of the directory %s failed" % email+'/contactos/'+contactoSearchFalse)
+                        else:
+                            print ("Successfully deleted the directory %s" % email+'/contactos/'+contactoSearchFalse)
 
             #end for de contactos
             if newPacienteString!='':
                 if email in newPacienteString:
-                    newPacienteString=newPacienteString+'}},'
+                    newPacienteString=newPacienteString+'}}'
+                    print(newPacienteString)
                     add=json.loads(newPacienteString)
                     pacientesJSON.update(add)
                     print(json.dumps(pacientesJSON))
                 else:
-                    newPacienteString=newPacienteString+'},'
+                    newPacienteString=newPacienteString+'}'
                     add=json.loads(newPacienteString)
                     pacientesJSON[email]=add
                     print(json.dumps(pacientesJSON))
         except:
             print(email+'no tiene contactos')
-            newPacienteString=newPacienteString+'},'
+            newPacienteString=newPacienteString+'{}}'
             print(newPacienteString)
             add=json.loads(newPacienteString)
             pacientesJSON.update(add)
             print(json.dumps(pacientesJSON))
-    #RECORRER PARA BUSCAR FALSES
-    auxPacientesJSON = copy.deepcopy(pacientesJSON)
-    for pacienteSearchFalse in pacientesJSON.keys():
-        print(pacienteSearchFalse)
-        for contactoSearchFalse in pacientesJSON[pacienteSearchFalse].keys():
-            print(contactoSearchFalse)
-            if pacientesJSON[pacienteSearchFalse][contactoSearchFalse]=="false":
-                #se elimino de Storage
-                #ELIMINAR CARPETA
-                try:
-                    for filename in os.listdir(email+'/contactos/'+contactoSearchFalse):
-                        print(filename)
-                        file_path = os.path.join(email+'/contactos/'+contactoSearchFalse, filename)
-                        try:
-                            if os.path.isfile(file_path) or os.path.islink(file_path):
-                                os.unlink(file_path)
-                            elif os.path.isdir(file_path):
-                                shutil.rmtree(file_path)
-                        except Exception as e:
-                            print('Failed to delete %s. Reason: %s' % (file_path, e))
-                    os.rmdir(email+'/contactos/'+contactoSearchFalse)
-                except OSError:
-                    print ("Deletion of the directory %s failed" % email+'/contactos/'+contactoSearchFalse)
-                else:
-                    print ("Successfully deleted the directory %s" % email+'/contactos/'+contactoSearchFalse)
-                #ELIMINAR DE JSON
-                auxPacientesJSON[pacienteSearchFalse].pop(contactoSearchFalse,None)
-                print(json.dumps(auxPacientesJSON))
-
-    pacientesJSON= copy.deepcopy(auxPacientesJSON)
-    print(json.dumps(pacientesJSON))
 
     #PONER A FALSE DE NUEVO
     for pacienteSearchFalse in pacientesJSON.keys():
@@ -183,7 +178,7 @@ pacientes_ref = db.collection(u'storage')
 pacientes_watch = pacientes_ref.on_snapshot(on_snapshot_pacientes)
 
 while True:
-    time.sleep(1)
+    time.sleep(2)
     print('procesando....')
 # hiloWatch = threading.Thread(target=hilo)
 # hiloWatch.setDaemon(True)
