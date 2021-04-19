@@ -45,6 +45,7 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
             creacion=True
             #añadir a json
             newPacienteString=newPacienteString+'{\"'+email+'\":'
+            ich=ich+1
             print(newPacienteString)
             #CREAR DIRECTORIO DEL PACIENTE
             try:
@@ -98,14 +99,15 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                     #PARA TODAS LAS FOTOS
                     storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
         #end for de contactos
+        i=i+1
         if newPacienteString!='':
             if email in newPacienteString:
-                newPacienteString=newPacienteString+'}}'
+                newPacienteString=newPacienteString+'}},'
                 add=json.loads(newPacienteString)
                 pacientesJSON.update(add)
                 print(json.dumps(pacientesJSON))
             else:
-                newPacienteString=newPacienteString+'}'
+                newPacienteString=newPacienteString+'},'
                 add=json.loads(newPacienteString)
                 pacientesJSON[email]=add
                 print(json.dumps(pacientesJSON))
