@@ -34,6 +34,7 @@ creacion= False
 def on_snapshot_pacientes(collection_snapshot, changes, read_time):
     global pacientesJSON,newPacienteString,creacion,storage
     for ch in changes:
+        newPacienteString=''
         print(ch.document.id)
         email=ch.document.id
         try:
@@ -114,8 +115,9 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
         except:
             print(email+'no tiene contactos')
             newPacienteString=newPacienteString+'},'
+            print(newPacienteString)
             add=json.loads(newPacienteString)
-            pacientesJSON[email]=add
+            pacientesJSON.update(add)
             print(json.dumps(pacientesJSON))
     #RECORRER PARA BUSCAR FALSES
     auxPacientesJSON = copy.deepcopy(pacientesJSON)
