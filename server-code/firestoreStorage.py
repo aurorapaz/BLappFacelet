@@ -73,12 +73,15 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                         #CREAR DIRECTORIO DE UN CONTACTO
                         try:
                             os.mkdir(email+'/contactos/'+contactoID)
-                        except OSError:
+                        except:
                             print ("Creation of the directory %s failed" % email+'/contactos/'+contactoID)
                         else:
                             print ("Successfully created the directory %s " % email+'/contactos/'+contactoID)
                         #PARA TODAS LAS FOTOS
-                        storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
+                        try:
+                            storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
+                        except:
+                            print('no hay foto')
                         i=i+1
                 else:
                     try:
@@ -93,12 +96,15 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                         #CREAR DIRECTORIO DE UN CONTACTO
                         try:
                             os.mkdir(email+'/contactos/'+contactoID)
-                        except OSError:
+                        except:
                             print ("Creation of the directory %s failed" % email+'/contactos/'+contactoID)
                         else:
                             print ("Successfully created the directory %s " % email+'/contactos/'+contactoID)
                         #PARA TODAS LAS FOTOS
-                        storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
+                        try:
+                            storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
+                        except:
+                            print('no hay foto')
 
             #end for de contactos
             if newPacienteString!='':
