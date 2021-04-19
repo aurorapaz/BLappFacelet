@@ -7,7 +7,7 @@ import 'dart:async';
 import 'globals.dart' as globals;
 
 class Sender {
-  IO.Socket socket = IO.io('http://facelet.ddns.net:8080', <String, dynamic>{
+  IO.Socket socket = IO.io('http://facelet.myddns.me:8080', <String, dynamic>{
     'transports': ['websocket']
   });
   String initialCount =
@@ -26,7 +26,7 @@ class Sender {
   Stream<String> get counterObservable => _subjectCounter.stream;
 
   void httpRequest() async {
-    var url = 'http://facelet.ddns.net:8080/';
+    var url = 'http://facelet.myddns.me:8080/';
     // Await the http get response, then decode the json-formatted response.
     var response = await http.get(url);
     if (response.statusCode == 200) {
@@ -39,7 +39,7 @@ class Sender {
   }
 
   void httpPostRequest(Uint8List _bytes) async {
-    var url = 'http://facelet.ddns.net:8080/save';
+    var url = 'http://facelet.myddns.me:8080/save';
   print(globals.email);
     Map data = {"name": globals.email, "photo": _bytes};
     var body = convert.json.encode(data);

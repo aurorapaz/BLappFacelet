@@ -19,7 +19,7 @@ def getName(imgPath, dbPath):
         for dirname in dirnames:
             dir = dbPath + '/' + dirname
             print("*********" + dir)
-            df = DeepFace.find(img_path=imgPath, db_path = dir, model_name="Facenet")
+            df = DeepFace.find(img_path=imgPath, db_path = dir, model_name="Facenet",enforce_detection=False)
             if not (df.size == 0):
                 if(distance > df.at[0,'Facenet_cosine']):
                     distance = df.at[0,'Facenet_cosine']
@@ -80,7 +80,7 @@ async def checkPhoto(request):
         email=name['name']
         npa= np.fromstring(bytes(photo['photo']),np.uint8)
         img = cv2.imdecode(npa,cv2.IMREAD_COLOR)
-        contactoReconocido=recognize(img,'./'+name['name']+'/contactos')
+        contactoReconocido=recognize(img,'C:/Users/auror/app-extra/server-code/'+name['name']+'/contactos')
         print(contactoReconocido)
         now = datetime.datetime.now()
         horaReconocimiento=now.strftime('%d/%m/20%y %H:%M')
