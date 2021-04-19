@@ -80,7 +80,7 @@ async def checkPhoto(request):
         email=name['name']
         npa= np.fromstring(bytes(photo['photo']),np.uint8)
         img = cv2.imdecode(npa,cv2.IMREAD_COLOR)
-        contactoReconocido=recognize(img,'C:/Users/auror/app-extra/server-code/'+name['name']+'/contactos')
+        contactoReconocido=recognize(img,'./'+name['name']+'/contactos')
         print(contactoReconocido)
         now = datetime.datetime.now()
         horaReconocimiento=now.strftime('%d/%m/20%y %H:%M')

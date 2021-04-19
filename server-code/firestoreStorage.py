@@ -170,6 +170,7 @@ hiloWatch.setDaemon(True)
 hiloWatch.start()
 
 while True:
-    print('main')
+    time.sleep(5)
+    print('hilo principal...')
 
 # Terminate watch --> pacientes_watch.unsubscribe()
