@@ -55,51 +55,53 @@ def on_snapshot_pacientes(collection_snapshot, changes, read_time):
                 print ("Creation of the directory %s failed" % email)
             else:
                 print ("Successfully created the directory %s " % email)
-
-        contacts=str(ch.document.to_dict()).split(',')
-        i=0
-        for contact in contacts:
-            print(contact.split('\'')[1])
-            contactoID=contact.split('\'')[1]
-            if i==0:
-                try:
-                    #existe el contacto?
-                    print(pacientesJSON[email][contactoID])
-                    pacientesJSON[email][contactoID]="true"
-                except:
-                    print('no existe contacto= '+contactoID)
-                    #AÑADIR A JSON
-                    newPacienteString=newPacienteString+'{\"'+contactoID+'\":"true"'
-                    #CREAR DIRECTORIO DE UN CONTACTO
+        try:
+            contacts=str(ch.document.to_dict()).split(',')
+            i=0
+            for contact in contacts:
+                print(contact.split('\'')[1])
+                contactoID=contact.split('\'')[1]
+                if i==0:
                     try:
-                        os.mkdir(email+'/contactos/'+contactoID)
-                    except OSError:
-                        print ("Creation of the directory %s failed" % email+'/contactos/'+contactoID)
-                    else:
-                        print ("Successfully created the directory %s " % email+'/contactos/'+contactoID)
-                    #PARA TODAS LAS FOTOS
-                    storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
-            else:
-                try:
-                    #existe el contacto?
-                    print(pacientesJSON[email][contactoID])
-                    pacientesJSON[email][contactoID]="true"
-                except:
-                    print('no existe contacto= '+contactoID)
-                    #AÑADIR A JSON
-                    newPacienteString=newPacienteString+',\"'+contactoID+'\":"true"'
-                    print(newPacienteString)
-                    #CREAR DIRECTORIO DE UN CONTACTO
+                        #existe el contacto?
+                        print(pacientesJSON[email][contactoID])
+                        pacientesJSON[email][contactoID]="true"
+                    except:
+                        print('no existe contacto= '+contactoID)
+                        #AÑADIR A JSON
+                        newPacienteString=newPacienteString+'{\"'+contactoID+'\":"true"'
+                        #CREAR DIRECTORIO DE UN CONTACTO
+                        try:
+                            os.mkdir(email+'/contactos/'+contactoID)
+                        except OSError:
+                            print ("Creation of the directory %s failed" % email+'/contactos/'+contactoID)
+                        else:
+                            print ("Successfully created the directory %s " % email+'/contactos/'+contactoID)
+                        #PARA TODAS LAS FOTOS
+                        storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
+                        i=i+1
+                else:
                     try:
-                        os.mkdir(email+'/contactos/'+contactoID)
-                    except OSError:
-                        print ("Creation of the directory %s failed" % email+'/contactos/'+contactoID)
-                    else:
-                        print ("Successfully created the directory %s " % email+'/contactos/'+contactoID)
-                    #PARA TODAS LAS FOTOS
-                    storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
+                        #existe el contacto?
+                        print(pacientesJSON[email][contactoID])
+                        pacientesJSON[email][contactoID]="true"
+                    except:
+                        print('no existe contacto= '+contactoID)
+                        #AÑADIR A JSON
+                        newPacienteString=newPacienteString+',\"'+contactoID+'\":"true"'
+                        print(newPacienteString)
+                        #CREAR DIRECTORIO DE UN CONTACTO
+                        try:
+                            os.mkdir(email+'/contactos/'+contactoID)
+                        except OSError:
+                            print ("Creation of the directory %s failed" % email+'/contactos/'+contactoID)
+                        else:
+                            print ("Successfully created the directory %s " % email+'/contactos/'+contactoID)
+                        #PARA TODAS LAS FOTOS
+                        storage.child(email+'/contactos/'+contactoID+'/triste.jpg').download("./"+email+'/contactos/'+contactoID+"/triste.jpg")
+        except:
+            print(email+'no tiene contactos')
         #end for de contactos
-        i=i+1
         if newPacienteString!='':
             if email in newPacienteString:
                 newPacienteString=newPacienteString+'}},'
